@@ -9,6 +9,28 @@ void print_v(std::vector<int> v) {
     std::cout << "\n";
 }
 
+int sequencial_search(std::vector<int> &v, int a){
+    for (int i = 0; i < (int)v.size(); i++) {
+        if (v[i] == a)
+            return i;
+    }
+    return -1;
+}
+
+int binary_search(std::vector<int> &v, int a){
+    int inicio = 0, fim = (int)v.size() - 1;
+    while (fim >= inicio) {
+        int meio = (inicio + fim) / 2;
+        if (v[meio] == a)
+            return meio;
+        else if (v[meio] < a)
+            inicio = meio + 1;
+        else
+            fim = meio - 1;
+    }
+    return -1;
+}
+
 void selection_sort(std::vector<int> &v) {
     for (int i = 0; i < (int)v.size(); i++) {
         int menor_i = i;

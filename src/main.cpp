@@ -1,7 +1,9 @@
-#include "complexity-enum.hpp"
 #include "complexity-analyzer.hpp"
-#include "your_algorithm.hpp"
+//vvvvvvvv INSIRA SUAS BIBLIOTECAS AQUI vvvvvvvv//
 
+#include "your_algorithm.hpp" // <---- EXEMPLO
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^//
 #include <iostream>
 #include <vector>
 #include <iomanip>
@@ -9,15 +11,19 @@
 int main() {
     Complexity_Analyzer com;
 
-    std::vector<int> v;
-    for (int i = 1000; i >= 0; i--) {
-        v.push_back(i);
-    }
+    auto complexity = com.analyze([&](int n) {
+        std::vector<int> v(n);
 
-    com.analyzer(bubble_sort, v);
-    double time = com.get_duration();
+        for (auto& x : v) x = rand(); // vetores desorganizados
+        
+        //vvvvvvvv INSIRA SUA FUNÇÃO AQUI vvvvvvvv//
 
-    std::cout << "tempo de execucao: " << std::fixed  << std::setprecision(2) << time << std::endl;
+        merge_sort(v); // <---- EXEMPLO
+
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^//
+    });
+
+    std::cout << complexity << std::endl;
 
     return 0;
 }

@@ -2,6 +2,9 @@
 
 #include <vector>
 
+
+int sequencial_search(std::vector<int> &v, int a);
+int binary_search(std::vector<int> &v, int a);
 void print_v(std::vector<int> v);
 void selection_sort(std::vector<int> &v);
 void insertion_sort(std::vector<int> &v);
