@@ -9,7 +9,7 @@ void print_v(std::vector<int> v) {
     std::cout << "\n";
 }
 
-int sequencial_search(std::vector<int> &v, int a){
+int sequencial_search(std::vector<int> &v, int a) {
     for (int i = 0; i < (int)v.size(); i++) {
         if (v[i] == a)
             return i;
@@ -17,7 +17,7 @@ int sequencial_search(std::vector<int> &v, int a){
     return -1;
 }
 
-int binary_search(std::vector<int> &v, int a){
+int binary_search(std::vector<int> &v, int a) {
     int inicio = 0, fim = (int)v.size() - 1;
     while (fim >= inicio) {
         int meio = (inicio + fim) / 2;
@@ -56,10 +56,16 @@ void insertion_sort(std::vector<int> &v) {
 
 void bubble_sort(std::vector<int> &v) {
     for (int i = 0; i < (int)v.size() - 1; i++) {
+        bool trocou = false;
+
         for (int j = 0; j < (int)v.size() - i - 1; j++) {
-            if (v[j] > v[j + 1])
+            if (v[j] > v[j + 1]) {
                 std::swap(v[j], v[j + 1]);
+                trocou = true;
+            }
         }
+        if (!trocou)
+            break;
     }
 }
 
@@ -96,7 +102,6 @@ void merge_sort(std::vector<int> &v, int esquerda, int direita) {
         intercalation(v, esquerda, meio + 1, direita);
     }
 }
-
 
 int particion(std::vector<int> &v, int esquerda, int direita) {
     int pivo = v[direita];

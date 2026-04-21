@@ -12,65 +12,169 @@
 #include <algorithm>
 
 enum class Complexity {
-    n,     // O(n)
-    n_2,   // O(n^2)
-    n_3,   // O(n^3)
-    nlogn, // O(n*log(n))
-    logn,  // O(log(n))
-    _2_n,  // O(2^n)
-    _3_n,  // O(3^n)
-    fat_n, // O(n!)
+    constant, // O(1)
+    n,        // O(n)
+    n_2,      // O(n^2)
+    n_3,      // O(n^3)
+    nlogn,    // O(n*log(n))
+    logn,     // O(log(n))
+    _2_n,     // O(2^n)
+    _3_n,     // O(3^n)
+    fat_n,    // O(n!)
+};
+
+enum class Speed {
+    fast,
+    normal,
+    slow
+};
+
+enum class InputType {
+    sorted,
+    reversed,
+    random
+};
+
+struct Config {
+    std::vector<int> sizes;
+    double min_time;
 };
 
 class Complexity_Analyzer {
   private:
     Complexity complexity;
-    std::chrono::duration<double, std::nano> duration;
-    std::vector<int> sizes = {1000, 2000, 4000, 8000, 16000};
+    Config config;
     std::vector<double> times;
 
-    Complexity estimate_complexity(const std::vector<int> &sizes, const std::vector<double> &times) {
-
-        std::vector<double> ks;
-
-        for (size_t i = 1; i < sizes.size(); i++) {
-            double t1 = times[i - 1];
-            double t2 = times[i];
-
-            double n1 = sizes[i - 1];
-            double n2 = sizes[i];
-
-            if (t1 <= 0 || t2 <= 0)
-                continue;
-
-            double k = log(t2 / t1) / log(n2 / n1);
-			ks.push_back(k);
-        
+    Config get_config(Speed speed) {
+        switch (speed) {
+            case Speed::fast:
+                return {
+                    {2000, 4000, 8000, 16000},
+                    0.02
+                };
+            case Speed::normal:
+                return {
+                    {10000, 20000, 40000, 80000},
+                    0.05
+                };
+            case Speed::slow:
+                return {
+                    {20000, 40000, 80000, 160000, 320000},
+                    0.05
+                };
         }
 
-        double avg_k = 0;
-        for (double k : ks)
-            avg_k += k;
-        avg_k /= ks.size();
-
-        if (avg_k < 0.3)
-            return Complexity::logn;
-        else if (avg_k < 1.2)
-            return Complexity::n;
-        else if (avg_k < 1.6)
-            return Complexity::nlogn;
-        else if (avg_k < 2.4)
-            return Complexity::n_2;
-        else if (avg_k < 3.2)
-            return Complexity::n_3;
-        else
-            return Complexity::_2_n;
+        return {};
     }
+
+    std::vector<int> generate_input(int n, InputType type) {
+        std::vector<int> v(n);
+
+        switch (type) {
+
+            case InputType::sorted:
+                for (int i = 0; i < n; i++)
+                    v[i] = i;
+                break;
+
+            case InputType::reversed:
+                for (int i = 0; i < n; i++)
+                    v[i] = n - i - 1;
+                break;
+
+            case InputType::random:
+                for (int i = 0; i < n; i++)
+                    v[i] = rand();
+                break;
+        }
+
+        return v;
+    }
+
+    Complexity estimate_complexity(const std::vector<int> &sizes, const std::vector<double> &times) {
+        /*
+        {
+            double mean = 0;
+            for (double t : times) mean += t;
+            mean /= times.size();
+
+            double var = 0;
+            for (double t : times) var += (t - mean) * (t - mean);
+            var /= times.size();
+
+            double stddev = std::sqrt(var);
+            double cv = stddev / mean;
+
+            double ratio = times.back() / times.front();
+
+            if (ratio < 1.5 && cv < 0.2)
+                return Complexity::constant;
+        } 
+        */     
+        {
+            double slope = 0;
+
+            for (size_t i = 1; i < sizes.size(); i++) {
+                double dn = sizes[i] - sizes[i - 1];
+                double dt = times[i] - times[i - 1];
+
+                slope += dt / dn;
+            }
+
+            slope /= (sizes.size() - 1);
+
+            if (slope < 1e-9)
+                return Complexity::constant;
+        }  
+                                       
+        auto compute_cv = [](const std::vector<double>& v) {
+            double mean = 0;
+            for (double x : v) mean += x;
+            mean /= v.size();
+
+            double var = 0;
+            for (double x : v) var += (x - mean) * (x - mean);
+            var /= v.size();
+
+            double stddev = std::sqrt(var);
+            return stddev / mean;
+        };
+
+        auto test_model = [&](auto f) {
+            std::vector<double> ratios;
+            for (size_t i = 0; i < sizes.size(); i++) {
+                double fn = f(sizes[i]);
+                if (fn <= 0) continue;
+                ratios.push_back(times[i] / fn);
+            }
+            return compute_cv(ratios);
+        };
+
+        double cv_n     = test_model([](double n) { return n; });
+        double cv_nlogn = test_model([](double n) { return n * std::log2(n); });
+        double cv_n2    = test_model([](double n) { return n * n; });
+        double cv_n3    = test_model([](double n) { return n * n * n; });
+        double cv_logn  = test_model([](double n) { return std::log2(n); });
+
+        std::vector<std::pair<Complexity, double>> results = {
+            {Complexity::logn,  cv_logn},
+            {Complexity::n,     cv_n},
+            {Complexity::nlogn, cv_nlogn},
+            {Complexity::n_2,   cv_n2},
+            {Complexity::n_3,   cv_n3}
+        };
+
+        return std::min_element(results.begin(), results.end(),
+            [](auto &a, auto &b) { return a.second < b.second; })->first;
+    }
+
 
   public:
 
 	inline const char* to_string(Complexity c) {
 		switch (c) {
+            case Complexity::constant: return "O(1) or O(log n)";
 			case Complexity::n: return "O(n)";
 			case Complexity::n_2: return "O(n^2)";
 			case Complexity::n_3: return "O(n^3)";
@@ -83,85 +187,48 @@ class Complexity_Analyzer {
     	}
 	}	
 
-    template <typename Func>
-	
-    std::string analyze(Func&& func) {
+    template<typename Func>
 
-		times.clear();
+    std::string analyze(Func&& func, 
+        InputType input_type = InputType::random, 
+        Speed speed = Speed::normal) {
 
-		for (int n : sizes) {
+        this->config = get_config(speed);
+        times.clear();
 
-			int repeat = std::max(10, 100000 / n);
-			std::vector<double> samples;
+        for (int n : config.sizes) {
+            {
+                auto input = generate_input(n, input_type);
+                func(input);
+            }
+            double total_time = 0.0;
+            int count = 0;
 
-			// warm-up leve
-			func(n);
+            while (total_time < config.min_time) {
 
-			for (int i = 0; i < repeat; i++) {
+                auto input = generate_input(n, input_type);
 
-				auto start = std::chrono::steady_clock::now();
+                auto start = std::chrono::high_resolution_clock::now();
 
-				func(n);
+                func(input);
 
-				auto end = std::chrono::steady_clock::now();
+                auto end = std::chrono::high_resolution_clock::now();
 
-				std::chrono::duration<double> dur = end - start;
+                std::chrono::duration<double> dur = end - start;
 
-				samples.push_back(dur.count());
-			}
+                total_time += dur.count();
+                count++;
+            }
 
-			std::sort(samples.begin(), samples.end());
-
-			int trim = samples.size() * 0.2;
-
-			double sum = 0;
-			int count = 0;
-
-			for (size_t i = trim; i < samples.size() - trim; i++) {
-				sum += samples[i];
-				count++;
-			}
-
-			double time = sum / count;
-
-			times.push_back(time); // 🔥 ESSENCIAL
-		}
-
-		this->complexity = estimate_complexity(sizes, times);
-
-		return to_string(complexity);
-	}
-
-    template <typename Func, typename... Args>
-    decltype(auto) function_time(Func &&func, Args &&...args) {
-
-        using ReturnType = std::invoke_result_t<Func, Args...>;
-
-        auto start = std::chrono::high_resolution_clock::now();
-
-        // if constexpr (std::is_void_v<decltype(func(args...))>) {
-        if constexpr (std::is_void_v<ReturnType>) {
-
-            // func(args...);
-            std::forward<Func>(func)(std::forward<Args>(args)...);
-            auto end = std::chrono::high_resolution_clock::now();
-
-            this->duration = end - start;
-        } else {
-
-            // auto res = func(args...);
-            auto result = std::forward<Func>(func)(std::forward<Args>(args)...);
-            auto end = std::chrono::high_resolution_clock::now();
-
-            this->duration = end - start;
-
-            return result;
+            double avg_time = total_time / count;
+            times.push_back(avg_time);
         }
+
+        this->complexity = estimate_complexity(config.sizes, times);
+
+        return to_string(complexity);
     }
 
-    double get_duration() const {
-        return duration.count();
-    }
 
     Complexity get_complexity() const {
         return complexity;
