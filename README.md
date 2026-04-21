@@ -1,8 +1,12 @@
 # Algorithm Complexity Analyzer (Analisador de Complexidade)
 
+Autor: Augusto César da Silva Carvalho
+
 Este projeto é uma ferramenta em C++ projetada para estimar a complexidade assintótica (Big O) de algoritmos de forma empírica.
 Através da execução repetida de uma função com diferentes tamanhos de entrada, a ferramenta coleta dados de tempo e utiliza modelos 
 estatísticos para inferir qual curva de crescimento melhor descreve o comportamento do algoritmo. 
+
+---
 
 ## Funcionalidades
 
@@ -10,6 +14,8 @@ estatísticos para inferir qual curva de crescimento melhor descreve o comportam
 - Configuração de Precisão: Oferece três modos de velocidade (fast, normal, slow) que equilibram tempo de teste e precisão.
 - Tipos de Entrada: Permite testar algoritmos com vetores ordenados, invertidos ou aleatórios (útil para analisar Melhor Caso, Pior Caso e Caso Médio).
 - Exportação de Dados: Gera arquivos .csv para plotagem de gráficos.
+
+---
 
 ## Métodos Matemáticos Utilizados
 
@@ -33,6 +39,8 @@ O motor de inferência da classe Complexity_Analyzer baseia-se em dois pilares e
    - Coeficiente de Variação: $CV = \frac{\sigma}{\mu}$
    
    Critério de Decisão: O modelo que apresentar o menor CV é escolhido. Um CV baixo indica que os dados coletados "encaixam-se" quase perfeitamente na curva teórica testada.
+
+---
 
 ## Como Usar
 
@@ -124,6 +132,8 @@ Para compilar o projeto, utilize o `g++`:
   g++ -std=gnu++17 -Wall -Wextra -O2 src/*.cpp -I include -o output/main.exe
   ```
 
+---
+
 ## O que é gerado?
 
 1. Saída no Console
@@ -153,6 +163,8 @@ os arquivos CSV gerados, um notebook em python com uma função plotadora, e os 
 Exemplo de plot:
 
 ![Exemplo de plot Bubble Sort](images/bubble_sort_random.png)
+
+---
 
 ## Limitações e Observações
 
