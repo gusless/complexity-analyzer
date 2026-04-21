@@ -1,0 +1,5 @@
+n,time,complexity
+10000,2.15092e-007,O(1) or O(log n)
+20000,2.73512e-007,O(1) or O(log n)
+40000,2.72754e-007,O(1) or O(log n)
+80000,2.55596e-007,O(1) or O(log n)

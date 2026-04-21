@@ -22,7 +22,8 @@ int main() {
             sequencial_search(v, 0);
         },
         InputType::random,
-        Speed::fast
+        Speed::normal,
+        "sequencial_search_random.csv"
     );
 
     std::cout << "Complexidade da busca sequencial com valores aleatorios:\n" << complexity_seq_search_random << std::endl;
@@ -33,22 +34,26 @@ int main() {
             sequencial_search(v, 0);
         },
         InputType::sorted,
-        Speed::fast
+        Speed::normal,
+        "sequencial_search_best.csv"
     );
 
     std::cout << "Complexidade da busca sequencial melhor caso:\n" << complexity_seq_search_best << std::endl;
     std::cout << "-------------------------------------------" << std::endl;
+
 
     auto complexity_seq_search_worst = com.analyze(
         [](std::vector<int> &v) {
             sequencial_search(v, -1);
         },
         InputType::reversed,
-        Speed::slow
+        Speed::slow,
+        "sequencial_search_worst.csv"
     );
 
     std::cout << "Complexidade da busca sequencial pior caso:\n" << complexity_seq_search_worst << std::endl;
     std::cout << "-------------------------------------------" << std::endl;
+
 
     std::cout << "**************************** BUSCA BINARIA ****************************\n\n";
 
@@ -58,8 +63,10 @@ int main() {
             binary_search(v, target);
         },
         InputType::sorted,
-        Speed::normal
+        Speed::normal,
+        "binary_search_random.csv"
     );
+
 
     std::cout << "Complexidade da busca binaria buscando um valor aleatorio:\n" << complexity_bin_search_random << std::endl;
     std::cout << "-------------------------------------------" << std::endl;
@@ -70,8 +77,10 @@ int main() {
             binary_search(v, mid);
         },
         InputType::sorted,
-        Speed::normal
+        Speed::normal,
+        "binary_search_best.csv"
     );
+
 
     std::cout << "Complexidade da busca binaria no melhor caso:\n" << complexity_bin_search_best << std::endl;
     std::cout << "-------------------------------------------" << std::endl;
@@ -82,8 +91,10 @@ int main() {
             binary_search(v, -1);
         },
         InputType::sorted,
-        Speed::normal
+        Speed::normal,
+        "binary_search_worst.csv"
     );
+
 
     std::cout << "Complexidade da busca binaria no pior caso:\n" << complexity_bin_search_worst << std::endl;
     std::cout << "-------------------------------------------" << std::endl;
@@ -99,8 +110,10 @@ int main() {
             bubble_sort(v);
         },
         InputType::random,
-        Speed::fast
+        Speed::fast,
+        "bubble_sort_random.csv"
     );
+
 
     std::cout << "Complexidade do bubble sort com valores aleatorios:\n" << complexity_b_sort_rand << std::endl;
     std::cout << "-------------------------------------------" << std::endl;
@@ -110,8 +123,10 @@ int main() {
             bubble_sort(v);
         },
         InputType::sorted,
-        Speed::normal
+        Speed::normal,
+        "bubble_sort_best.csv"
     );
+
 
     std::cout << "Complexidade do bubble sort com valores ja ordenados (melhor caso):\n" << complexity_b_sort_best << std::endl;
     std::cout << "-------------------------------------------" << std::endl;
@@ -121,7 +136,8 @@ int main() {
             bubble_sort(v);
         },
         InputType::reversed,
-        Speed::fast
+        Speed::fast,
+        "bubble_sort_worst.csv"
     );
 
     std::cout << "Complexidade do bubble sort com valores ordenados em ordem decrescente (pior caso):\n" << complexity_b_sort_worst << std::endl;
@@ -134,13 +150,37 @@ int main() {
             merge_sort(v);
         },
         InputType::random,
-        Speed::slow
+        Speed::slow,
+        "merge_sort_random.csv"
     );
 
     std::cout << "Complexidade do merge sort com valores aleatorios:\n" << complexity_m_sort_rand << std::endl;
     std::cout << "-------------------------------------------" << std::endl;
     
+    auto complexity_m_sort_sorted = com.analyze(
+        [](std::vector<int> &v) {
+            merge_sort(v);
+        },
+        InputType::sorted,
+        Speed::slow,
+        "merge_sort_best.csv"
+    );
+
+    std::cout << "Complexidade do merge sort com o vetor ordenado:\n" << complexity_m_sort_sorted << std::endl;
+    std::cout << "-------------------------------------------" << std::endl;
     
+
+    auto complexity_m_sort_reversed = com.analyze(
+        [](std::vector<int> &v) {
+            merge_sort(v);
+        },
+        InputType::reversed,
+        Speed::slow,
+        "merge_sort_worst.csv"
+    );
+
+    std::cout << "Complexidade do merge sort com o vetor ordenado decrescentemente:\n" << complexity_m_sort_reversed << std::endl;
+    std::cout << "-------------------------------------------" << std::endl;
     
     return 0;
 }

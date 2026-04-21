@@ -10,6 +10,8 @@
 #include <utility>
 #include <string>
 #include <algorithm>
+#include <fstream>
+#include <filesystem>
 
 enum class Complexity {
     constant, // O(1)
@@ -92,26 +94,7 @@ class Complexity_Analyzer {
         return v;
     }
 
-    Complexity estimate_complexity(const std::vector<int> &sizes, const std::vector<double> &times) {
-        /*
-        {
-            double mean = 0;
-            for (double t : times) mean += t;
-            mean /= times.size();
-
-            double var = 0;
-            for (double t : times) var += (t - mean) * (t - mean);
-            var /= times.size();
-
-            double stddev = std::sqrt(var);
-            double cv = stddev / mean;
-
-            double ratio = times.back() / times.front();
-
-            if (ratio < 1.5 && cv < 0.2)
-                return Complexity::constant;
-        } 
-        */     
+    Complexity estimate_complexity(const std::vector<int> &sizes, const std::vector<double> &times) {    
         {
             double slope = 0;
 
@@ -191,7 +174,11 @@ class Complexity_Analyzer {
 
     std::string analyze(Func&& func, 
         InputType input_type = InputType::random, 
-        Speed speed = Speed::normal) {
+        Speed speed = Speed::normal,
+        //bool generate = false,
+        const std::string& filename = "-1", 
+        const std::string& folder = "results"
+    ) {
 
         this->config = get_config(speed);
         times.clear();
@@ -226,7 +213,28 @@ class Complexity_Analyzer {
 
         this->complexity = estimate_complexity(config.sizes, times);
 
+        if (filename != "-1")
+            save_to_csv(filename, folder);
+
         return to_string(complexity);
+    }
+
+    void save_to_csv(const std::string& filename, const std::string& folder = "results") {
+
+        if (!std::filesystem::exists(folder))
+            std::filesystem::create_directory(folder);
+        std::string full_path = folder + "/" + filename;
+
+        std::ofstream file(full_path);
+
+        file << "n,time,complexity\n";
+
+        for (size_t i = 0; i < config.sizes.size(); i++) {
+            file << config.sizes[i] << "," << times[i] << "," 
+                << to_string(complexity) << "\n";
+        }
+
+        file.close();
     }
 
 
